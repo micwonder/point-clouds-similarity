@@ -18,9 +18,9 @@ def plot_clusters_plotly(point_cloud, clusters):
         # Add scatter plot for cluster points
         fig.add_trace(
             go.Scatter3d(
-                x=cluster_points[:, 0],
-                y=cluster_points[:, 1],
-                z=cluster_points[:, 2],
+                x=cluster_points[:10, 0],
+                y=cluster_points[:10, 1],
+                z=cluster_points[:10, 2],
                 mode="markers",
                 marker=dict(
                     size=1.5,  # Adjust point size here
@@ -186,7 +186,7 @@ def plot_cloud_with_normals(point_cloud, normals):
     plt.show()
 
 
-def plot_point_cloud_plotly(position: str, similarity, cloud_data):
+def plot_point_cloud_plotly(cloud_data, position: str = "NaN", similarity=1.0):
     fig = go.Figure(
         data=[
             go.Scatter3d(

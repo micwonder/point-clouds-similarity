@@ -21,6 +21,9 @@ def region_growing(point_cloud, normals, angle_threshold=91, distance_threshold=
 
     # Convert angle threshold from degrees to cosine of the angle for comparison
     cos_angle_threshold = np.cos(np.radians(angle_threshold))
+    print(cos_angle_threshold)
+    print(np.radians(angle_threshold))
+    print(angle_threshold)
 
     for i in range(point_count):
         if not visited[i]:
@@ -81,11 +84,11 @@ def simulate_parameters(point_cloud, normals, angle_thresholds, distance_thresho
 
 if __name__ == "__main__":
     # Example usage:
-    # point_cloud = np.random.rand(100, 3)  # Simulate a small random point cloud
+    # point_cloud = np.random.rand(100, 3)
     point_cloud = load_point_cloud()
     # point_cloud = point_cloud[::17]
     point_cloud = normalize_point_cloud(point_cloud=point_cloud)
-    normals = compute_normals(point_cloud)  # Assume this function is already defined
+    normals = compute_normals(point_cloud)
     clusters = region_growing(point_cloud=point_cloud, normals=normals)
 
     plot_clusters_plotly(point_cloud=point_cloud, clusters=clusters)

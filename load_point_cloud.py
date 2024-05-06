@@ -43,7 +43,7 @@ def load_target_point_cloud_by_directions(path: str):
     # point_cloud[:, 2] = (point_cloud[:, 2] - mean_alt) / std_alt
     # point_cloud[:, 2] = (point_cloud[:, 2]) / std_alt
 
-    point_cloud[:, 2] = -point_cloud[:, 2]
+    # point_cloud[:, 2] = -point_cloud[:, 2]
 
     return point_cloud
 
