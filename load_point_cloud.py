@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 
-def load_point_cloud(file_path: str):
+def load_point_cloud(file_path: str = r"dataset\point_cloud1.txt"):
     """Load point cloud data from a txt file."""
     return np.loadtxt(file_path)
 
@@ -53,6 +53,7 @@ if __name__ == "__main__":
 
     # point_cloud = load_target_point_cloud_by_directions("reconstruction_result")
     # point_cloud = load_target_point_cloud_by_directions("sample_output")
-    point_cloud = load_point_cloud(file_path=r"dataset\point_cloud1.txt")
+    # point_cloud = load_point_cloud()
+    point_cloud = load_point_cloud(file_path=r"dataset\airport-data\result\merged.txt")
 
     plot_point_cloud_plotly(position="NaN", similarity=1.0, cloud_data=point_cloud)
