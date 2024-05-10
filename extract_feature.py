@@ -3,7 +3,9 @@ from scipy.linalg import svd
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
 
-from computing_surface_normals import compute_normals
+from computing_surface_normals import compute_normals, normalize_point_cloud
+from load_point_cloud import load_point_cloud
+from myploty import plot_cloud_with_normals_plotly
 from segmentation_and_clustering import region_growing
 
 
@@ -99,12 +101,19 @@ def extract_features(point_cloud, clusters):
     return features
 
 
-# Example usage:
-point_cloud = np.random.rand(100, 3)
-normals = compute_normals(point_cloud)
-clusters = region_growing(point_cloud, normals)
-features = extract_features(point_cloud, clusters)
+if __name__ == "__main__":
+    # point_cloud = np.random.rand(100, 3)
+    point_cloud = load_point_cloud()
+    point_cloud = point_cloud[::117]
+    point_cloud = normalize_point_cloud(point_cloud=point_cloud)
+    normals, curvatures = compute_normals(point_cloud)
+    print("normals:", normals[:100])
+    print("curvatures:", curvatures[:100])
+    plot_cloud_with_normals_plotly(point_cloud=point_cloud, normals=normals)
+    clusters = region_growing(point_cloud, normals)
+    print("clusters:", clusters[:100])
+    features = extract_features(point_cloud, clusters)
 
-print("Extracted Features:")
-for feature in features:
-    print(feature)
+    print("Extracted Features:")
+    for feature in features:
+        print(feature)

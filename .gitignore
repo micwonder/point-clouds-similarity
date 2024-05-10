@@ -1,6 +1,6 @@
 env/
 __pycache__/
-dataset/airport-data/
+dataset/
 reconstruction_result/
 reference/
 sample_output/

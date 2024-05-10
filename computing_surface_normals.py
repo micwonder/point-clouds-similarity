@@ -3,6 +3,7 @@ from scipy.spatial import KDTree
 from scipy.linalg import eigh
 from myploty import plot_cloud_with_normals_plotly, plot_cloud_with_normals
 from load_point_cloud import load_point_cloud
+import time
 
 
 def normalize_point_cloud(point_cloud):
@@ -17,54 +18,77 @@ def normalize_point_cloud(point_cloud):
     return normalized_cloud
 
 
-def compute_normals(point_cloud, k=20, r_factor=1.5):
+def compute_normals(point_cloud, k=20):
     """
-    Compute surface normals for each point in the point cloud using an adaptive neighborhood size.
-    :param point_cloud: Nx3 numpy array of 3D points.
-    :param k: Initial number of neighbors to consider for the covariance matrix.
-    :param r_factor: Factor to adjust the neighborhood radius based on local variance.
-    :return: Nx3 numpy array of normals.
+    Compute normals and curvature for each point in the point cloud.
+    Args:
+    - point_cloud (np.array): N x 3 numpy array of coordinates.
+    - k (int): Number of nearest neighbors to consider for the neighborhood.
+
+    Returns:
+    - normals (np.array): N x 3 array of normals.
+    - curvatures (np.array): N array of curvature values.
     """
     tree = KDTree(point_cloud)
     normals = np.zeros_like(point_cloud)
+    curvatures = np.zeros(point_cloud.shape[0])
 
     for i, point in enumerate(point_cloud):
-        # Step 1: Determine initial neighborhood based on k nearest neighbors
-        distances, indices = tree.query(point, k=k)
-        initial_neighbors = point_cloud[indices]
+        # Find k-nearest neighbors (including the point itself)
+        distances, indices = tree.query(point, k=k + 1)
 
-        # Step 2: Calculate the local variance and adjust the radius
-        local_var = np.var(distances)
-        adaptive_radius = r_factor * np.sqrt(local_var)
+        # Extract the neighborhood points
+        neighbors = point_cloud[indices]
 
-        # Step 3: Redefine neighbors based on the adaptive radius
-        indices = tree.query_ball_point(point, r=adaptive_radius)
-        adaptive_neighbors = point_cloud[indices]
+        # Compute the mean (centroid) of the neighbors
+        mu = np.mean(neighbors, axis=0)
 
-        # Step 4: Compute covariance matrix from adaptive neighbors
-        if len(adaptive_neighbors) > 2:
-            cov_matrix = np.cov(
-                adaptive_neighbors - adaptive_neighbors.mean(axis=0), rowvar=False
-            )
-            # Step 5: Compute eigenvalues and eigenvectors; the normal is the eigenvector with the smallest eigenvalue
-            eigenvalues, eigenvectors = eigh(cov_matrix)
-            normal = eigenvectors[:, np.argmin(eigenvalues)]
-            normals[i] = normal * np.sign(normal[2])  # Ensuring the normal is outward
-        else:
-            normals[i] = [np.nan, np.nan, np.nan]  # Not enough points to define a plane
+        # Compute the covariance matrix of the neighborhood
+        covariance_matrix = np.cov(neighbors - mu, rowvar=False, bias=True)
 
-    return normals
+        # Perform eigen decomposition to find the normals and curvature
+        eigenvalues, eigenvectors = np.linalg.eigh(covariance_matrix)
+
+        # The normal vector is the eigenvector corresponding to the smallest eigenvalue
+        normal = eigenvectors[:, 0]
+        curvature = eigenvalues[0] / eigenvalues.sum()
+
+        # Ensuring the normal points towards the viewpoint
+        if np.dot(normal, point - mu) > 0:
+            normal = -normal
+
+        normals[i] = normal
+        curvatures[i] = curvature
+
+    return normals, curvatures
 
 
 if __name__ == "__main__":
     # Example usage
     # point_cloud = np.random.rand(100, 3)  # Simulate a small random point cloud
-    point_cloud = load_point_cloud()
-    point_cloud = point_cloud[::17]
+    print("Loading ...")
+
+    timestamp = time.time()
+    point_cloud = load_point_cloud(file_path=r"dataset\boss\2.txt")
+    print("Loaded: {:.3f}".format(time.time() - timestamp))
+
+    point_cloud = point_cloud[:10000]
+    print("Filtered: {:.3f}".format(time.time() - timestamp))
+
     point_cloud = normalize_point_cloud(point_cloud=point_cloud)
+    print("Normalized: {:.3f}".format(time.time() - timestamp))
 
-    normals = compute_normals(point_cloud)
-    print("Computed Normals:\n", normals)
+    normals, curvatures = compute_normals(point_cloud)
+    print("Normals computed: {:3f}".format(time.time() - timestamp))
+    # print("Computed Normals:\n", normals)
+    # for normal in normals:
+    #     print(normal)
 
-    # plot_cloud_with_normals(point_cloud=point_cloud, normals=normals)
-    plot_cloud_with_normals_plotly(point_cloud=point_cloud, normals=normals)
+    print("~~~~~~~~~~~~~~~~~~~~~~~")
+    print(curvatures)
+
+    plot_cloud_with_normals(point_cloud=point_cloud, normals=normals)
+    # plot_cloud_with_normals_plotly(point_cloud=point_cloud, normals=normals)
+    # plot_cloud_with_normals_plotly(point_cloud=point_cloud, normals=normals)
+
+    print("Successfully executed: {:3f}".format(time.time() - timestamp))
