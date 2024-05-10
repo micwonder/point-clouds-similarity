@@ -5,7 +5,7 @@ from load_point_cloud import load_point_cloud
 from myploty import plot_point_cloud_plotly, plot_clusters_plotly
 
 
-def region_growing(point_cloud, normals, angle_threshold=-91, distance_threshold=0.1):
+def region_growing(point_cloud, normals, angle_threshold=91, distance_threshold=0.1):
     """
     Segment point cloud using region growing based on normals similarity and spatial proximity.
     :param point_cloud: Nx3 numpy array of points.

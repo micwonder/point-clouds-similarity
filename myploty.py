@@ -186,6 +186,40 @@ def plot_cloud_with_normals(point_cloud, normals):
     plt.show()
 
 
+def plot_point_cloud_by_density_plotly(
+    cloud_data, position: str = "NaN", similarity=1.0, density=2
+):
+    fig = go.Figure(
+        data=[
+            go.Scatter3d(
+                x=cloud_data[::density, 0],
+                y=cloud_data[::density, 1],
+                z=cloud_data[::density, 2],
+                mode="markers",
+                marker=dict(
+                    size=2,
+                    color=cloud_data[::density, 2],  # Color by altitude
+                    colorscale="Viridis",  # Choose a colormap
+                    opacity=0.6,
+                ),
+            )
+        ]
+    )
+
+    fig.update_layout(
+        title=f'Position: {position.split(".txt")[0]} - Similarity: {similarity:.2f}',
+        scene=dict(
+            xaxis_title="Longitude",
+            yaxis_title="Latitude",
+            zaxis_title="Altitude",
+            # zaxis=dict(range=[0, 1000]),
+            # yaxis=dict(range=[125.64, 125.7]),
+        ),
+    )
+
+    fig.show()
+
+
 def plot_point_cloud_plotly(cloud_data, position: str = "NaN", similarity=1.0):
     fig = go.Figure(
         data=[
