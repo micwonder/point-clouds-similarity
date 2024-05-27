@@ -51,9 +51,9 @@ def load_target_point_cloud_by_directions(path: str):
 if __name__ == "__main__":
     from myploty import plot_point_cloud_plotly
 
-    # point_cloud = load_target_point_cloud_by_directions("reconstruction_result")
+    point_cloud = load_target_point_cloud_by_directions("reconstruction_result")
     # point_cloud = load_target_point_cloud_by_directions("sample_output")
     # point_cloud = load_point_cloud()
-    point_cloud = load_point_cloud(file_path=r"dataset\airport-data\result\merged.txt")
+    # point_cloud = load_point_cloud(file_path=r"dataset\airport-data\result\merged.txt")
 
     plot_point_cloud_plotly(position="NaN", similarity=1.0, cloud_data=point_cloud)
